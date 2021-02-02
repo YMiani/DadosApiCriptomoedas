@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>CoinMarketCap</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        type="text/css">
+</head>
+
+<body>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active" aria-current="page">Coin Market Cap - Projeto</li>
+        </ol>
+    </nav>
+    <div class="text-bold mb-3 ml-3">Moedas ordenadas pela primeira data histórica de aparição:</div>
+    <div class="d-flex p-3 bd-highlight">
+
+        <div id='coins'></div>
+    </div>
+
+
+
+    <script type="text/javascript">
+        var apiKey = { key: '8fd5e9c3-adfa-4806-be07-a0ae7ec75671' }
+
+        fetch('https://pro-api.coinmarketcap.com/v1/cryptocurrency/map?CMC_PRO_API_KEY=' +
+            apiKey.key)
+            .then((response) => {
+                if (!response.ok) throw new Error('Erro ao executar a requisição, status ' + response.status);
+                return response.json();
+            })
+            .then((api) => {
+                var dataFormatada = [];
+                var texto = "";
+                for (let i = 0; i < 100; i++) {
+                    var dataEscolhida = api.data.slice(0, 100);
+                    dataEscolhida = dataEscolhida.sort(function (a, b) {
+                        if (a.first_historical_data > b.first_historical_data) {
+                            return 1;
+                        }
+                        if (a.first_historical_data < b.first_historical_data) {
+                            return -1;
+                        }
+                        return 0;
+                    });
+                    var dataHistorica = dataEscolhida[i].first_historical_data.split("T");
+                    dataHistorica = dataHistorica[0].split("-");
+                    dataHistorica = dataHistorica[2] + "/" + dataHistorica[1] + "/" + dataHistorica[0];
+
+                    texto = texto + `
+                    <div class="media">
+                        <img src="assets/coin.png" class="align-self-center mr-3 mb-2" alt="coin" width="100" height="80">
+                        <div class="media-body">
+                        <h5 class="mt-2">${dataEscolhida[i].name}</h5>
+                        <p>${dataEscolhida[i].symbol}</p>
+                        <p>Primeira aparição histórica: ${dataHistorica}</p>
+                        </div>
+                    </div>
+               
+                    `;
+
+                    document.getElementById("coins").innerHTML = texto;
+
+                }
+            })
+            .catch((error) => {
+                console.error(error.message);
+            });
+    </script>
+</body>
+
+</html>
